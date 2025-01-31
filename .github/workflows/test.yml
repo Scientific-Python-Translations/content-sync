@@ -9,7 +9,7 @@ jobs:
         id: selftest
 
         # Put your action repo here
-        uses: goanpeca/action-test@main
+        uses: Scientific-Python-Translations/content-sync@main
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
