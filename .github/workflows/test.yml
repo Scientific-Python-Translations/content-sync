@@ -13,11 +13,11 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
       # TODO: Move this to the python script?
+      - uses: actions/checkout@main
       - name: Sign commit and push changes
         run: |
             git config --global user.email "${{ steps.import-gpg.outputs.email }}"
             git config --global user.name "${{ steps.import-gpg.outputs.name }}"
-      - uses: actions/checkout@main
       - name: Self test
         id: selftest
         uses: Scientific-Python-Translations/content-sync@main
