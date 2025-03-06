@@ -13,54 +13,69 @@ def set_github_action_output(output_name, output_value):
     f.close()    
 
 
-def sync_website_content(token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
-    cmds = ['git', 'clone', f'https://github.com/{source_repo}.git']
-    out = check_output(cmds)
-    print(out)
+def run(cmds):
+    p = Popen(cmds, stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    print('\n\n' + ' '.join(cmds))
+    print('Out: ', out.decode())
+    print('Err: ', err.decode())
+    print('Code: ', p.returncode)
+    return out, err, p.returncode
 
-    cmds = ['git', 'clone', f'https://github.com/{translations_repo}.git']
-    out = check_output(cmds)
-    print(out)
 
-    cmds = ['rsync', '-av', '--delete', source_folder, translations_folder]
-    out = check_output(cmds)
-    print(out)
+def sync_website_content(github_token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
+    username = 'goanpeca'
+    run(['git', 'config', '--global', 'user.email', '"gonzalo.pena@quansight.com"'])
+    run(['git', 'config', '--global', 'user.name', '"Scientific Python Translations"'])
 
-    branch_name = datetime.now().strftime('updates-%Y-%m-%d-%H-%M-%S')
+    if source_ref:
+        cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://{username}:{github_token}@github.com/{source_repo}.git']
+    else:
+        cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{source_repo}.git']
+
+    run(cmds)
+
+    if translations_ref:
+        cmds = ['git', 'clone', '-b', translations_ref, f'https://{username}:{github_token}@github.com/{translations_repo}.git']
+    else:
+        cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{translations_repo}.git']
+
+    run(cmds)
+    run(['rsync', '-av', '--delete', source_folder, translations_folder])
+
+    branch_name = datetime.now().strftime('content-sync-%Y-%m-%d-%H-%M-%S')
     os.chdir(translations_repo.split('/')[1])
+    print('getcwd:', os.getcwd())
     
-    cmds = ['git', 'checkout', '-b', branch_name]
-    out = check_output(cmds)
-    print(out)
+    run(['git', 'checkout', '-b', branch_name])
+    run(['git', 'add', '.'])
+    _out, _err, rc = run(['git', 'diff', '--staged', '--quiet' ])
 
-    cmds = ['git', 'config', '--global', 'user.email', '"actions@github.com"']
-    out = check_output(cmds)
-    print(out)
+    if rc:
+        run(['git', 'commit', '-S',  '-m', "Update website content. This commit is signed!"])
+        run(['git', 'remote', '-v'])
+        run(['git', 'push', '-u', 'origin', branch_name])
+    else:
+        print("No changes to commit.")
 
-    cmds = ['git', 'config', '--global', 'user.name', '"GitHub Actions"']
-    out = check_output(cmds)
-    print(out)
-
-    cmds = ['git', 'add', '.']
-    out = check_output(cmds)
-    print(out)
-
-    auth = Auth.Token(token)
-    g = Github(auth=auth)
-    repo = g.get_repo(translations_repo)
-    pulls = repo.get_pulls(state='closed', sort='created', direction='desc')
-    pr_branch = None
-    for pr in pulls:
-        print(pr.number, pr.title)
-        pr_branch = pr.head.ref
-        if pr.title == "Update source content":
-            break
-    g.close()
+    # FIXME: check other PRs and check the diff!
+    # auth = Auth.Token(github_token)
+    # g = Github(auth=auth)
+    # repo = g.get_repo(translations_repo)
+    # pulls = repo.get_pulls(state='closed', sort='created', direction='desc')
+    # pr_branch = None
+    # for pr in pulls:
+    #     print(pr.number, pr.title)
+    #     pr_branch = pr.head.ref
+    #     if pr.title == "Update source content":
+    #         break
+    # g.close()
 
     # cmds = ['git', 'diff', f'{pr_branch}..{branch_name}']
     # out = check_output(cmds)
     # print(out)
 
+    # ORIGINAL SCRIPT
     # git add .
     # # Only proceed to commit if there are changes
     # if git diff --staged --quiet; then
@@ -72,11 +87,10 @@ def sync_website_content(token, source_repo, source_folder, source_ref, translat
     # git push -u origin ${{ env.BRANCH_NAME }}
     # fi
 
-
-
 def parse_input():
+    print(os.environ)
     gh_input = {
-        'github_token': os.environ["GITHUB_TOKEN"],
+        'github_token': os.environ["TOKEN"],
         'source_repo': os.environ["INPUT_SOURCE-REPO"],
         'source_folder': os.environ["INPUT_SOURCE-FOLDER"],
         'source_ref': os.environ["INPUT_SOURCE-REF"],
@@ -87,22 +101,10 @@ def parse_input():
     return gh_input
 
 
-
-
 def main():
-    github_token = os.environ["GITHUB_TOKEN"]
-    source_repo = os.environ["INPUT_SOURCE-REPO"]
-    source_folder = os.environ["INPUT_SOURCE-FOLDER"]
-    source_ref = os.environ["INPUT_SOURCE-REF"]
-    translations_repo = os.environ["INPUT_TRANSLATIONS-REPO"]
-    translations_folder = os.environ["INPUT_TRANSLATIONS-FOLDER"]
-    translations_ref = os.environ["INPUT_TRANSLATIONS-REF"]
-
-    # repository = os.environ["GITHUB_REPOSITORY"]
-
-    sync_website_content(github_token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref)
-    set_github_action_output('todo', 'Hello world')
-    print("TESTING")
+    gh_input = parse_input()
+    print(gh_input)
+    sync_website_content(**gh_input)
 
 
 if __name__ == "__main__":

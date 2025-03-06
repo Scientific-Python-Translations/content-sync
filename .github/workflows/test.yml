@@ -5,21 +5,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
+      # - name: Import GPG key
+      #   id: import-gpg
+      #   uses: crazy-max/ghaction-import-gpg@v4
+      #   with:
+      #     gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+      #     passphrase: ${{ secrets.PASSPHRASE }}
+      #     git_user_signingkey: true
+      #     git_commit_gpgsign: true
+      #     git_config_global: true
+      # TODO: Move this to the python script or a composite action?
+      # - name: Configure commit signing
+      #   run: |
+      #       git config --global user.email "${{ steps.import-gpg.outputs.email }}"
+      #       git config --global user.name "${{ steps.import-gpg.outputs.name }}"
       - name: Self test
         id: selftest
-
-        # Put your action repo here
         uses: Scientific-Python-Translations/content-sync@main
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          source-repo: "pandas-dev/pandas"
+          source-repo: "scientificpythontranslations/pandas"
           source-folder: "pandas/web/pandas/"
-          source-ref: "main"
-          translations-repo: "Scientific-Python-Translations/pandas-translations"
+          source-ref: "test-trans"
+          translations-repo: "scientificpythontranslations/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
           translations-ref: "main"
-
-      - name: Check outputs
-        run: |
-          test "${{ steps.selftest.outputs.todo }}" == "Hello world"
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          github-token: ${{ secrets.TOKEN }}
