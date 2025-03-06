@@ -87,8 +87,6 @@ def parse_input():
     return gh_input
 
 
-
-
 def main():
     github_token = os.environ["GITHUB_TOKEN"]
     source_repo = os.environ["INPUT_SOURCE-REPO"]
