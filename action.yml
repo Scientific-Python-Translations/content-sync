@@ -35,7 +35,8 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: |
+    - shell: bash
+      run: |
         apt-get update && apt-get upgrade -y && apt-get install -y git && apt-get install -y rsync
     - name: Import GPG key
       id: import-gpg
@@ -47,13 +48,17 @@ runs:
         git_commit_gpgsign: true
         git_config_global: true
     - name: Configure commit signing
+      shell: bash
       run: |
           git config --global user.email "${{ steps.import-gpg.outputs.email }}"
           git config --global user.name "${{ steps.import-gpg.outputs.name }}"
-    - uses: actions/setup-python@v5
+    - name: Configure python
+      uses: actions/setup-python@v5
       with:
         python-version: '3.13' # '3.x'
-    - run: |
+    - name: Run scripts
+      shell: bash
+      run: |
         python -m pip install --upgrade pip
         python -m pip install requests pygithub
         python main.py
