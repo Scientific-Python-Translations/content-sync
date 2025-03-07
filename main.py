@@ -44,8 +44,7 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     out = check_output(cmds)
     print(out)
 
-    # branch_name = datetime.now().strftime('updates-%Y-%m-%d-%H-%M-%S')
-    branch_name = 'content-sync'
+    branch_name = f"content-sync{datetime.now().strftime('updates-%Y-%m-%d-%H-%M-%S')}"
     os.chdir(translations_repo.split('/')[1])
     print('getcwd:', os.getcwd())
     
@@ -57,21 +56,20 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     out = check_output(cmds)
     print(out)
 
-    cmds = ['git', 'diff', '--staged']
+    cmds = ['git', 'diff', '--staged', '--quet' ]
     p = Popen(cmds, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     print(out, err, p.returncode)
 
-    # if git diff --staged --quiet; then
-    # echo "No changes to commit."
-    # echo "CONTENT_CHANGED=false" >> $GITHUB_ENV
-    # else
-    # git commit -m "Update website content"
-    # echo "CONTENT_CHANGED=true" >> $GITHUB_ENV
-    # git push -u origin ${{ env.BRANCH_NAME }}
-    # fi
-
-
+    if p.returncode:
+        cmds = ['git', 'commit', '-S',  '-m', "Update website content. This commit is signed!"]
+        out = check_output(cmds)
+        print(out)
+        cmds = ['git', 'push', 'origin', branch_name]
+        out = check_output(cmds)
+        print(out)
+    else:
+        print("No changes to commit.")
 
     # auth = Auth.Token(github_token)
     # g = Github(auth=auth)
