@@ -50,7 +50,7 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     out = check_output(cmds)
     print(out)
 
-    branch_name = f"content-sync{datetime.now().strftime('updates-%Y-%m-%d-%H-%M-%S')}"
+    branch_name = datetime.now().strftime('content-sync-%Y-%m-%d-%H-%M-%S')
     os.chdir(translations_repo.split('/')[1])
     print('getcwd:', os.getcwd())
     
@@ -72,6 +72,11 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
         p = Popen(cmds, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         print(out, err)
+
+        cmds = ['git', 'remote', '-v']
+        p = Popen(cmds, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        
         cmds = ['git', 'push', '-u', 'origin', branch_name]
         p = Popen(cmds, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
