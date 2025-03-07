@@ -71,11 +71,12 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
         cmds = ['git', 'commit', '-S',  '-m', "Update website content. This commit is signed!"]
         p = Popen(cmds, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
-        print(out, err)
+        print('commit', out, err)
 
         cmds = ['git', 'remote', '-v']
         p = Popen(cmds, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
+        print('remote', out, err)
         
         cmds = ['git', 'push', '-u', 'origin', branch_name]
         p = Popen(cmds, stdout=PIPE, stderr=PIPE)
