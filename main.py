@@ -63,11 +63,13 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
 
     if p.returncode:
         cmds = ['git', 'commit', '-S',  '-m', "Update website content. This commit is signed!"]
-        out = check_output(cmds)
-        print(out)
+        p = Popen(cmds, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        print(out, err)
         cmds = ['git', 'push', 'origin', branch_name]
-        out = check_output(cmds)
-        print(out)
+        p = Popen(cmds, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        print(out, err)
     else:
         print("No changes to commit.")
 
