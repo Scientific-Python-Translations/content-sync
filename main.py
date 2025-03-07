@@ -55,6 +55,22 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     out = check_output(cmds)
     print(out)
 
+
+    cmds = ['git', 'diff', '--staged', '--quiet']
+    out = check_output(cmds)
+    print(out)
+
+    # if git diff --staged --quiet; then
+    # echo "No changes to commit."
+    # echo "CONTENT_CHANGED=false" >> $GITHUB_ENV
+    # else
+    # git commit -m "Update website content"
+    # echo "CONTENT_CHANGED=true" >> $GITHUB_ENV
+    # git push -u origin ${{ env.BRANCH_NAME }}
+    # fi
+
+
+
     # auth = Auth.Token(github_token)
     # g = Github(auth=auth)
     # repo = g.get_repo(translations_repo)
