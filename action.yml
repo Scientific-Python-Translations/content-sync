@@ -35,9 +35,9 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - shell: bash
-      run: |
-        apt-get update && apt-get upgrade -y && apt-get install -y git && apt-get install -y rsync
+    # - shell: bash
+    #   run: |
+    #     apt-get update && apt-get upgrade -y && apt-get install -y git && apt-get install -y rsync
     - name: Import GPG key
       id: import-gpg
       uses: crazy-max/ghaction-import-gpg@v4
