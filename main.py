@@ -13,16 +13,22 @@ def set_github_action_output(output_name, output_value):
     f.close()    
 
 
+def run(cmds):
+    p = Popen(cmds, stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    return out, err
+
+
 def sync_website_content(github_token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
     # git config --global user.email "${{ steps.import-gpg.outputs.email }}"
     # git config --global user.name "${{ steps.import-gpg.outputs.name }}"
-    # cmds = ['git', 'config', '--global', 'user.email', '"actions@github.com"']
-    # out = check_output(cmds)
-    # print(out)
+    cmds = ['git', 'config', '--global', 'user.email', '"gonzalo.pena@quansight.com"']
+    out = check_output(cmds)
+    print(out)
 
-    # cmds = ['git', 'config', '--global', 'user.name', '"GitHub Actions"']
-    # out = check_output(cmds)
-    # print(out)
+    cmds = ['git', 'config', '--global', 'user.name', '"Scientific Python Translations"']
+    out = check_output(cmds)
+    print(out)
 
     if source_ref:
         cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://github.com/{source_repo}.git']
