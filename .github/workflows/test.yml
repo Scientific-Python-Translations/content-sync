@@ -5,15 +5,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-      - name: Import GPG key
-        id: import-gpg
-        uses: crazy-max/ghaction-import-gpg@v4
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
-          git_config_global: true
+      # - name: Import GPG key
+      #   id: import-gpg
+      #   uses: crazy-max/ghaction-import-gpg@v4
+      #   with:
+      #     gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+      #     passphrase: ${{ secrets.PASSPHRASE }}
+      #     git_user_signingkey: true
+      #     git_commit_gpgsign: true
+      #     git_config_global: true
       # TODO: Move this to the python script or a composite action?
       # - name: Configure commit signing
       #   run: |
@@ -31,6 +31,8 @@ jobs:
           translations-repo: "goanpeca/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
           translations-ref: "main"
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
       - name: Check outputs
         run: |
           test "${{ steps.selftest.outputs.todo }}" == "Hello world"

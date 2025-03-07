@@ -20,9 +20,31 @@ inputs:
   translations-ref:
     description: "Translations reference"
     default: "main"
+  gpg_private_key:
+    description: "TODO"
+    required: true
+  passphrase: 
+    description: "TODO"
+    required: true    
 outputs:
   todo:
     description: "TODO"
+# runs:
+#   using: "docker"
+#   image: "Dockerfile"
 runs:
-  using: "docker"
-  image: "Dockerfile"
+  using: "composite"
+  steps:
+    - name: Import GPG key
+      id: import-gpg
+      uses: crazy-max/ghaction-import-gpg@v4
+      with:
+        gpg_private_key: ${{ inputs.GPG_PRIVATE_KEY }}
+        passphrase: ${{ inputs.PASSPHRASE }}
+        git_user_signingkey: true
+        git_commit_gpgsign: true
+        git_config_global: true
+    - name: Configure commit signing
+      run: |
+          git config --global user.email "${{ steps.import-gpg.outputs.email }}"
+          git config --global user.name "${{ steps.import-gpg.outputs.name }}"
