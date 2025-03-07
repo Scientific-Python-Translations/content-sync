@@ -24,10 +24,10 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          source-repo: "pandas-dev/pandas"
+          source-repo: "goanpeca/pandas"
           source-folder: "pandas/web/pandas/"
           source-ref: "main"
-          translations-repo: "Scientific-Python-Translations/pandas-translations"
+          translations-repo: "goanpeca/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
           translations-ref: "main"
       - name: Check outputs

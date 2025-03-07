@@ -88,17 +88,11 @@ def parse_input():
 
 
 def main():
-    github_token = os.environ["GITHUB_TOKEN"]
-    source_repo = os.environ["INPUT_SOURCE-REPO"]
-    source_folder = os.environ["INPUT_SOURCE-FOLDER"]
-    source_ref = os.environ["INPUT_SOURCE-REF"]
-    translations_repo = os.environ["INPUT_TRANSLATIONS-REPO"]
-    translations_folder = os.environ["INPUT_TRANSLATIONS-FOLDER"]
-    translations_ref = os.environ["INPUT_TRANSLATIONS-REF"]
+    gh_input = parse_input()
 
     # repository = os.environ["GITHUB_REPOSITORY"]
 
-    sync_website_content(github_token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref)
+    sync_website_content(**gh_input)
     set_github_action_output('todo', 'Hello world')
     print("TESTING")
 
