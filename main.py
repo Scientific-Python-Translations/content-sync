@@ -56,8 +56,9 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     print(out)
 
     cmds = ['git', 'diff', '--staged', '--quiet']
-    out = check_output(cmds)
-    print(out)
+    p = Popen(cmds, stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    print(out, err, p.returncode)
 
     # if git diff --staged --quiet; then
     # echo "No changes to commit."
