@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from subprocess import check_output, Popen, PIPE
+import subprocess
 
 from github import Github, Auth
 
@@ -57,7 +58,10 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
 
 
     cmds = ['git', 'diff', '--staged', '--quiet']
-    out = check_output(cmds)
+    try:
+        out = check_output(cmds)
+    except subprocess.CalledProcessError as exc:
+        out = exc.output
     print(out)
 
     # if git diff --staged --quiet; then
