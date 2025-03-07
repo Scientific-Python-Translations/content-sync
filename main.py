@@ -72,7 +72,7 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
         p = Popen(cmds, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         print(out, err)
-        cmds = ['git', 'push', 'origin', branch_name]
+        cmds = ['git', 'push', '-u', 'origin', branch_name]
         p = Popen(cmds, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         print(out, err)
