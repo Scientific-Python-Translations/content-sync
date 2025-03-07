@@ -13,8 +13,8 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           git_user_signingkey: true
           git_commit_gpgsign: true
-      # TODO: Move this to the python script?
-      - name: Sign commit and push changes
+      # TODO: Move this to the python script or a composite action?
+      - name: Configure commit signing
         run: |
             git config --global user.email "${{ steps.import-gpg.outputs.email }}"
             git config --global user.name "${{ steps.import-gpg.outputs.name }}"
@@ -26,7 +26,7 @@ jobs:
         with:
           source-repo: "goanpeca/pandas"
           source-folder: "pandas/web/pandas/"
-          source-ref: "main"
+          source-ref: "test-trans"
           translations-repo: "goanpeca/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
           translations-ref: "main"
