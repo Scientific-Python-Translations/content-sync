@@ -31,17 +31,16 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     print(out)
 
     if source_ref:
-        cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://github.com/{source_repo}.git']
+        cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'git@github.com:github.com/{source_repo}.git']
     else:
-        cmds = ['git', 'clone', f'https://github.com/{source_repo}.git']
-
+        cmds = ['git', 'clone', f'git@github.com:{source_repo}.git']
     out = check_output(cmds)
     print(out)
 
     if translations_ref:
-        cmds = ['git', 'clone', '--single-branch', '-b', translations_ref, f'https://github.com/{translations_repo}.git']
+        cmds = ['git', 'clone', '--single-branch', '-b', translations_ref, f'git@github.com:{translations_repo}.git']
     else:
-        cmds = ['git', 'clone', f'https://github.com/{translations_repo}.git']
+        cmds = ['git', 'clone', f'git@github.com:{translations_repo}.git']
 
     out = check_output(cmds)
     print(out)
