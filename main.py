@@ -110,6 +110,7 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
 
 
 def parse_input():
+    print(os.environ)
     gh_input = {
         'github_token': os.environ["GITHUB_TOKEN"],
         'source_repo': os.environ["INPUT_SOURCE-REPO"],
