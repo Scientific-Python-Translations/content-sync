@@ -35,7 +35,7 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     if source_ref:
         cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://{username}:{github_token}@github.com/{source_repo}.git']
     else:
-        cmds = ['git', 'clone', f'https://github.com/{source_repo}.git']
+        cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{source_repo}.git']
 
     out = check_output(cmds)
     print(out)
@@ -43,7 +43,7 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     if translations_ref:
         cmds = ['git', 'clone', '--single-branch', '-b', translations_ref, f'https://{username}:{github_token}@github.com/{translations_repo}.git']
     else:
-        cmds = ['git', 'clone', f'https://github.com/{translations_repo}.git']
+        cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{translations_repo}.git']
 
     out = check_output(cmds)
     print(out)
@@ -115,8 +115,6 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
     # git push -u origin ${{ env.BRANCH_NAME }}
     # fi
 
-
-
 def parse_input():
     print(os.environ)
     gh_input = {
@@ -134,12 +132,7 @@ def parse_input():
 def main():
     gh_input = parse_input()
     print(gh_input)
-
-    # repository = os.environ["GITHUB_REPOSITORY"]
-
     sync_website_content(**gh_input)
-    set_github_action_output('todo', 'Hello world')
-    print("TESTING")
 
 
 if __name__ == "__main__":
