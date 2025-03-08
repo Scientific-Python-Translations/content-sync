@@ -126,6 +126,7 @@ def parse_input():
 
 def main():
     gh_input = parse_input()
+    print(gh_input)
 
     # repository = os.environ["GITHUB_REPOSITORY"]
 
