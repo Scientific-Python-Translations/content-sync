@@ -27,13 +27,10 @@ jobs:
         with:
           source-repo: "scientificpythontranslations/pandas"
           source-folder: "pandas/web/pandas/"
-          source-ref: "main"
+          source-ref: "test-trans"
           translations-repo: "scientificpythontranslations/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
           translations-ref: "main"
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Check outputs
-        run: |
-          test "${{ steps.selftest.outputs.todo }}" == "Hello world"
