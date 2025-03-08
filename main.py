@@ -16,74 +16,60 @@ def set_github_action_output(output_name, output_value):
 def run(cmds):
     p = Popen(cmds, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
-    return out, err
+    return out, err, p.returncode
 
 
 def sync_website_content(github_token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
     username = 'goanpeca'
-    print(source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref)
-    # git config --global user.email "${{ steps.import-gpg.outputs.email }}"
-    # git config --global user.name "${{ steps.import-gpg.outputs.name }}"
-    cmds = ['git', 'config', '--global', 'user.email', '"gonzalo.pena@quansight.com"']
-    out = check_output(cmds)
-    print(out)
 
-    cmds = ['git', 'config', '--global', 'user.name', '"Scientific Python Translations"']
-    out = check_output(cmds)
-    print(out)
+    out, err, rc = run(['git', 'config', '--global', 'user.email', '"gonzalo.pena@quansight.com"'])
+    print('git config', out, err)
+
+    out, err, rc = run(['git', 'config', '--global', 'user.name', '"Scientific Python Translations"'])
+    print('git config', out, err)
 
     if source_ref:
         cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://{username}:{github_token}@github.com/{source_repo}.git']
     else:
         cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{source_repo}.git']
 
-    out = check_output(cmds)
-    print(out)
+    out, err, rc = run(cmds)
+    print('git clone source', out, err)
 
     if translations_ref:
         cmds = ['git', 'clone', '--single-branch', '-b', translations_ref, f'https://{username}:{github_token}@github.com/{translations_repo}.git']
     else:
         cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{translations_repo}.git']
 
-    out = check_output(cmds)
-    print(out)
+    out, err, rc = run(cmds)
+    print('git clone translations', out, err)
 
-    cmds = ['rsync', '-av', '--delete', source_folder, translations_folder]
-    out = check_output(cmds)
-    print(out)
+    
+    out, err, rc = run(['rsync', '-av', '--delete', source_folder, translations_folder])
+    print('rsync', out, err)
 
     branch_name = datetime.now().strftime('content-sync-%Y-%m-%d-%H-%M-%S')
     os.chdir(translations_repo.split('/')[1])
     print('getcwd:', os.getcwd())
     
-    cmds = ['git', 'checkout', '-b', branch_name]
-    out = check_output(cmds)
-    print(out)
+    out, err, rc = run(['git', 'checkout', '-b', branch_name])
+    print('checkout', out, err)
 
-    cmds = ['git', 'add', '.']
-    out = check_output(cmds)
-    print(out)
+    out, err, rc = run(['git', 'add', '.'])
+    print('git add', out, err)
 
-    cmds = ['git', 'diff', '--staged', '--quiet' ]
-    p = Popen(cmds, stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate()
-    print(out, err, p.returncode)
+    out, err, rc = run(['git', 'diff', '--staged', '--quiet' ])
+    print('git diff', out, err)
 
-    if p.returncode:
-        cmds = ['git', 'commit', '-S',  '-m', "Update website content. This commit is signed!"]
-        p = Popen(cmds, stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
+    if rc:
+        out, err, rc = run(['git', 'commit', '-S',  '-m', "Update website content. This commit is signed!"])
         print('commit', out, err)
 
-        cmds = ['git', 'remote', '-v']
-        p = Popen(cmds, stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
+        out, err, rc = run(['git', 'remote', '-v'])
         print('remote', out, err)
 
-        cmds = ['git', 'push', '-u', 'origin', branch_name]
-        p = Popen(cmds, stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
-        print(out, err)
+        out, err, rc = run(['git', 'push', '-u', 'origin', branch_name])
+        print('git push', out, err)
     else:
         print("No changes to commit.")
 
