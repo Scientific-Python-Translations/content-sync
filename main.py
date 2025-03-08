@@ -20,7 +20,7 @@ def run(cmds):
 
 
 def sync_website_content(github_token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
-    username = 'scientificpythontranslations'
+    username = 'goanpeca'
     print(source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref)
     # git config --global user.email "${{ steps.import-gpg.outputs.email }}"
     # git config --global user.name "${{ steps.import-gpg.outputs.name }}"
