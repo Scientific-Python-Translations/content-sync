@@ -43,7 +43,6 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
 
     out, err, rc = run(cmds)
     print('git clone translations', out, err)
-
     
     out, err, rc = run(['rsync', '-av', '--delete', source_folder, translations_folder])
     print('rsync', out, err)
