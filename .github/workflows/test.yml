@@ -23,7 +23,7 @@ jobs:
         id: selftest
         uses: Scientific-Python-Translations/content-sync@main
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            TOKEN: ${{ secrets.TOKEN }}
         with:
           source-repo: "scientificpythontranslations/pandas"
           source-folder: "pandas/web/pandas/"
@@ -33,4 +33,4 @@ jobs:
           translations-ref: "main"
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          github-token: ${{ secrets.TOKEN }}
+          token: ${{ secrets.TOKEN }}

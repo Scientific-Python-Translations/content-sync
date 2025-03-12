@@ -23,22 +23,22 @@ def run(cmds):
     return out, err, p.returncode
 
 
-def sync_website_content(github_token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
+def sync_website_content(token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
     username = 'goanpeca'
     run(['git', 'config', '--global', 'user.email', '"gonzalo.pena@quansight.com"'])
     run(['git', 'config', '--global', 'user.name', '"Scientific Python Translations"'])
 
     if source_ref:
-        cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://{username}:{github_token}@github.com/{source_repo}.git']
+        cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://{username}:{token}@github.com/{source_repo}.git']
     else:
-        cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{source_repo}.git']
+        cmds = ['git', 'clone', f'https://{username}:{token}@github.com/{source_repo}.git']
 
     run(cmds)
 
     if translations_ref:
-        cmds = ['git', 'clone', '-b', translations_ref, f'https://{username}:{github_token}@github.com/{translations_repo}.git']
+        cmds = ['git', 'clone', '-b', translations_ref, f'https://{username}:{token}@github.com/{translations_repo}.git']
     else:
-        cmds = ['git', 'clone', f'https://{username}:{github_token}@github.com/{translations_repo}.git']
+        cmds = ['git', 'clone', f'https://{username}:{token}@github.com/{translations_repo}.git']
 
     run(cmds)
     run(['rsync', '-av', '--delete', source_folder, translations_folder])
@@ -90,7 +90,7 @@ def sync_website_content(github_token, source_repo, source_folder, source_ref, t
 def parse_input():
     print(os.environ)
     gh_input = {
-        'github_token': os.environ["TOKEN"],
+        'token': os.environ["TOKEN"],
         'source_repo': os.environ["INPUT_SOURCE-REPO"],
         'source_folder': os.environ["INPUT_SOURCE-FOLDER"],
         'source_ref': os.environ["INPUT_SOURCE-REF"],
