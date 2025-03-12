@@ -69,8 +69,8 @@ runs:
         INPUT_TRANSLATIONS-REPO: ${{ inputs.TRANSLATIONS-REPO }}
         INPUT_TRANSLATIONS-FOLDER: ${{ inputs.TRANSLATIONS-FOLDER }}
         INPUT_TRANSLATIONS-REF: ${{ inputs.TRANSLATIONS-REF }}
-        OUTPUT_NAME: ${{ steps.import-gpg.outputs.email }}
-        OUTPUT_EMAIL: ${{ steps.import-gpg.outputs.name }}
+        GPG_NAME: ${{ steps.import-gpg.outputs.email }}
+        GPG_EMAIL: ${{ steps.import-gpg.outputs.name }}
       run: |
         python -m pip install --upgrade pip
         python -m pip install requests pygithub

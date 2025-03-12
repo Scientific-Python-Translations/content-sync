@@ -23,10 +23,10 @@ def run(cmds):
     return out, err, p.returncode
 
 
-def sync_website_content(token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref):
+def sync_website_content(token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref, name, email):
     username = 'goanpeca'
-    run(['git', 'config', '--global', 'user.email', '"gonzalo.pena@quansight.com"'])
-    run(['git', 'config', '--global', 'user.name', '"Scientific Python Translations"'])
+    run(['git', 'config', '--global', 'user.email', f'"{name}"'])
+    run(['git', 'config', '--global', 'user.name', f'"{email}"'])
 
     if source_ref:
         cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://{username}:{token}@github.com/{source_repo}.git']
@@ -97,13 +97,14 @@ def parse_input():
         'translations_repo': os.environ["INPUT_TRANSLATIONS-REPO"],
         'translations_folder': os.environ["INPUT_TRANSLATIONS-FOLDER"],
         'translations_ref': os.environ["INPUT_TRANSLATIONS-REF"],
+        'name':os.environ["GPG_NAME"],
+        'email': os.environ["GPG_EMAIL"],
     }
     return gh_input
 
 
 def main():
     gh_input = parse_input()
-    print(gh_input)
     sync_website_content(**gh_input)
 
 
