@@ -6,8 +6,6 @@ jobs:
     steps:
       - name: Test action
         uses: Scientific-Python-Translations/content-sync@main
-        env:
-            TOKEN: "123"
         with:
           source-repo: "scientificpythontranslations/pandas"
           source-folder: "pandas/web/pandas/"
@@ -17,4 +15,4 @@ jobs:
           translations-ref: "main"
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          token: ${{ secrets.TOKEN }}
+          token: "123"
