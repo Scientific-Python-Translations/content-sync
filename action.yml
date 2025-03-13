@@ -47,8 +47,8 @@ runs:
     - name: Configure commit signing
       shell: bash
       run: |
-          git config --global user.email "${{ steps.import-gpg.outputs.email }}"
           git config --global user.name "${{ steps.import-gpg.outputs.name }}"
+          git config --global user.email "${{ steps.import-gpg.outputs.email }}"
     - name: Configure python
       uses: actions/setup-python@v5
       with:
@@ -63,8 +63,8 @@ runs:
         INPUT_TRANSLATIONS-REPO: ${{ inputs.TRANSLATIONS-REPO }}
         INPUT_TRANSLATIONS-FOLDER: ${{ inputs.TRANSLATIONS-FOLDER }}
         INPUT_TRANSLATIONS-REF: ${{ inputs.TRANSLATIONS-REF }}
-        GPG_NAME: ${{ steps.import-gpg.outputs.email }}
-        GPG_EMAIL: ${{ steps.import-gpg.outputs.name }}
+        GPG_NAME: ${{ steps.import-gpg.outputs.name }}
+        GPG_EMAIL: ${{ steps.import-gpg.outputs.email }}
       run: |
         python -m pip install --upgrade pip
         python -m pip install requests pygithub

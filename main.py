@@ -13,7 +13,7 @@ def set_github_action_output(output_name, output_value):
     f.close()    
 
 
-def run(cmds):
+def run(cmds, with_token=False):
     p = Popen(cmds, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     print('\n\n' + ' '.join(cmds))
@@ -24,8 +24,8 @@ def run(cmds):
 
 
 def sync_website_content(username, token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref, name, email):
-    run(['git', 'config', '--global', 'user.email', f'"{name}"'])
-    run(['git', 'config', '--global', 'user.name', f'"{email}"'])
+    run(['git', 'config', '--global', 'user.name', f'"{name}"'])
+    run(['git', 'config', '--global', 'user.email', f'"{email}"'])
 
     if source_ref:
         cmds = ['git', 'clone', '--single-branch', '-b', source_ref, f'https://{username}:{token}@github.com/{source_repo}.git']
@@ -51,34 +51,49 @@ def sync_website_content(username, token, source_repo, source_folder, source_ref
     run(['git', 'add', '.'])
     _out, _err, rc = run(['git', 'diff', '--staged', '--quiet' ])
 
+    pr_title = "Update content"
+    github_token = os.environ.get("GITHUB_TOKEN", '')
     if rc:
         run(['git', 'commit', '-S',  '-m', f"Update content."])
         run(['git', 'remote', '-v'])
         run(['git', 'push', '-u', 'origin', branch_name])
 
-        github_token = os.environ.get("GITHUB_TOKEN", '')
         os.environ["GITHUB_TOKEN"] = token
-        run(['gh', 'pr', 'create', '--base', 'main', '--head', branch_name, '--title', "Update content", '--body', "Automated content update."])
+        run(['gh', 'pr', 'create', '--base', 'main', '--head', branch_name, '--title', pr_title, '--body', "Automated content update."])
         os.environ["GITHUB_TOKEN"] = github_token
     else:
         print("No changes to commit.")
 
-    # FIXME: check other PRs and check the diff!
-    # auth = Auth.Token(github_token)
-    # g = Github(auth=auth)
-    # repo = g.get_repo(translations_repo)
-    # pulls = repo.get_pulls(state='closed', sort='created', direction='desc')
-    # pr_branch = None
-    # for pr in pulls:
-    #     print(pr.number, pr.title)
-    #     pr_branch = pr.head.ref
-    #     if pr.title == "Update source content":
-    #         break
-    # g.close()
+    auth = Auth.Token(github_token)
+    g = Github(auth=auth)
+    repo = g.get_repo(translations_repo)
+    pulls = repo.get_pulls(state='open', sort='created', direction='desc')
+    pr_branch = None
+    signed_by = f"{name} <{email}>"
+    for pr in pulls:
+        # print(pr.number, pr.title)
+        pr_branch = pr.head.ref
+        if pr.title == pr_title and pr_branch == branch_name:
+            print('Found PR try to merge it!')
+    
+        # Check if commits are signed
+        checks = []
+        for commit in pr.get_commits():
+            print([commit.commit.verification.verified, signed_by, commit.commit.verification.payload])
+            checks.append(commit.commit.verification.verified and signed_by in commit.commit.verification.payload)
 
-    # cmds = ['git', 'diff', f'{pr_branch}..{branch_name}']
-    # out = check_output(cmds)
-    # print(out)
+        if all(checks):
+            print('All commits are signed, auto-merging!')
+            # https://cli.github.com/manual/gh_pr_merge
+            os.environ["GITHUB_TOKEN"] = token
+            # run(['gh', 'pr', 'megre', branch_name, '--auto'])
+            os.environ["GITHUB_TOKEN"] = token
+        else:
+            print('Not all commits are signed, abort merge!')
+
+        break
+
+    g.close()
 
 
 def parse_input():
