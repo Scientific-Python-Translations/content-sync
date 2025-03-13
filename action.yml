@@ -29,9 +29,6 @@ inputs:
   github-token:
     description: "TODO"
     required: true
-outputs:
-  todo:
-    description: "TODO"
 # runs:
 #   using: "docker"
 #   image: "Dockerfile"

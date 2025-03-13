@@ -80,17 +80,6 @@ def sync_website_content(username, token, source_repo, source_folder, source_ref
     # out = check_output(cmds)
     # print(out)
 
-    # ORIGINAL SCRIPT
-    # git add .
-    # # Only proceed to commit if there are changes
-    # if git diff --staged --quiet; then
-    # echo "No changes to commit."
-    # echo "CONTENT_CHANGED=false" >> $GITHUB_ENV
-    # else
-    # git commit -m "Update website content"
-    # echo "CONTENT_CHANGED=true" >> $GITHUB_ENV
-    # git push -u origin ${{ env.BRANCH_NAME }}
-    # fi
 
 def parse_input():
     gh_input = {
