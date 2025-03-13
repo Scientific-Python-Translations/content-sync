@@ -7,31 +7,28 @@ inputs:
     required: true
   source-folder:
     description: "Source folder"
-    default: ""
+    required: true
   source-ref:
     description: "Source reference"
     default: "main"
   translations-repo:
     description: "Translations repository"
-    default: ""
+    required: true
   translations-folder:
     description: "Translations folder"
-    default: ""
+    required: true
   translations-ref:
     description: "Translations reference"
     default: "main"
   gpg_private_key:
-    description: "TODO"
+    description: "GPG private key of the user/email making the commits"
     required: true
   passphrase: 
-    description: "TODO"
+    description: "GPG passphrase of the user/email making the commits"
     required: true    
-  github-token:
-    description: "TODO"
+  token:
+    description: "Github personal access token of the account performing the github operations"
     required: true
-# runs:
-#   using: "docker"
-#   image: "Dockerfile"
 runs:
   using: "composite"
   steps:
@@ -59,7 +56,7 @@ runs:
     - name: Run scripts
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        TOKEN: ${{ inputs.TOKEN }}
         INPUT_SOURCE-REPO: ${{ inputs.SOURCE-REPO }}
         INPUT_SOURCE-FOLDER: ${{ inputs.SOURCE-FOLDER }}
         INPUT_SOURCE-REF: ${{ inputs.SOURCE-REF }}
