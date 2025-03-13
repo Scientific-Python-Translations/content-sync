@@ -23,8 +23,7 @@ def run(cmds):
     return out, err, p.returncode
 
 
-def sync_website_content(token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref, name, email):
-    username = 'goanpeca'
+def sync_website_content(username, token, source_repo, source_folder, source_ref, translations_repo, translations_folder, translations_ref, name, email):
     run(['git', 'config', '--global', 'user.email', f'"{name}"'])
     run(['git', 'config', '--global', 'user.name', f'"{email}"'])
 
@@ -46,16 +45,21 @@ def sync_website_content(token, source_repo, source_folder, source_ref, translat
     date_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     branch_name = f'content-sync-{date_time}'
     os.chdir(translations_repo.split('/')[1])
-    print('getcwd:', os.getcwd())
+    print('\n\ngetcwd:', os.getcwd())
     
     run(['git', 'checkout', '-b', branch_name])
     run(['git', 'add', '.'])
     _out, _err, rc = run(['git', 'diff', '--staged', '--quiet' ])
 
     if rc:
-        run(['git', 'commit', '-S',  '-m', f"Update website content. {date_time}"])
+        run(['git', 'commit', '-S',  '-m', f"Update content."])
         run(['git', 'remote', '-v'])
         run(['git', 'push', '-u', 'origin', branch_name])
+
+        github_token = os.environ["GITHUB_TOKEN"]
+        os.environ["GITHUB_TOKEN"] = token
+        run(['gh', 'pr', 'create', '--base', 'main', '--head', branch_name, '--title', "Update content", '--body', "Automated content update."])
+        os.environ["GITHUB_TOKEN"] = github_token
     else:
         print("No changes to commit.")
 
@@ -89,15 +93,18 @@ def sync_website_content(token, source_repo, source_folder, source_ref, translat
     # fi
 
 def parse_input():
-    print(os.environ)
     gh_input = {
+        'username': 'scientificpythontranslations',
+        # Provided by organization secrets
         'token': os.environ["TOKEN"],
+        # Provided by user action input
         'source_repo': os.environ["INPUT_SOURCE-REPO"],
         'source_folder': os.environ["INPUT_SOURCE-FOLDER"],
         'source_ref': os.environ["INPUT_SOURCE-REF"],
         'translations_repo': os.environ["INPUT_TRANSLATIONS-REPO"],
         'translations_folder': os.environ["INPUT_TRANSLATIONS-FOLDER"],
         'translations_ref': os.environ["INPUT_TRANSLATIONS-REF"],
+        # Provided by gpg action based on organization secrets
         'name':os.environ["GPG_NAME"],
         'email': os.environ["GPG_EMAIL"],
     }
