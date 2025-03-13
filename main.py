@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from subprocess import check_output, Popen, PIPE
+from subprocess import Popen, PIPE
 
 from github import Github, Auth
 
@@ -56,7 +56,7 @@ def sync_website_content(username, token, source_repo, source_folder, source_ref
         run(['git', 'remote', '-v'])
         run(['git', 'push', '-u', 'origin', branch_name])
 
-        github_token = os.environ["GITHUB_TOKEN"]
+        github_token = os.environ.get("GITHUB_TOKEN", '')
         os.environ["GITHUB_TOKEN"] = token
         run(['gh', 'pr', 'create', '--base', 'main', '--head', branch_name, '--title', "Update content", '--body', "Automated content update."])
         os.environ["GITHUB_TOKEN"] = github_token
