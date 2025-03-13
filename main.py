@@ -43,7 +43,8 @@ def sync_website_content(token, source_repo, source_folder, source_ref, translat
     run(cmds)
     run(['rsync', '-av', '--delete', source_folder, translations_folder])
 
-    branch_name = datetime.now().strftime('content-sync-%Y-%m-%d-%H-%M-%S')
+    date_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    branch_name = f'content-sync-{date_time}'
     os.chdir(translations_repo.split('/')[1])
     print('getcwd:', os.getcwd())
     
@@ -52,7 +53,7 @@ def sync_website_content(token, source_repo, source_folder, source_ref, translat
     _out, _err, rc = run(['git', 'diff', '--staged', '--quiet' ])
 
     if rc:
-        run(['git', 'commit', '-S',  '-m', "Update website content. This commit is signed!"])
+        run(['git', 'commit', '-S',  '-m', f"Update website content. {date_time}"])
         run(['git', 'remote', '-v'])
         run(['git', 'push', '-u', 'origin', branch_name])
     else:
