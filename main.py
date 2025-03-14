@@ -62,7 +62,7 @@ def sync_website_content(username, token, source_repo, source_folder, source_ref
         run(['gh', 'pr', 'create', '--base', 'main', '--head', branch_name, '--title', pr_title, '--body', "Automated content update."])
         os.environ["GITHUB_TOKEN"] = github_token
     else:
-        print("No changes to commit.")
+        print("\n\nNo changes to commit.")
 
     auth = Auth.Token(github_token)
     g = Github(auth=auth)
@@ -74,7 +74,7 @@ def sync_website_content(username, token, source_repo, source_folder, source_ref
         # print(pr.number, pr.title)
         pr_branch = pr.head.ref
         if pr.title == pr_title and pr_branch == branch_name:
-            print('Found PR try to merge it!')
+            print('\n\nFound PR try to merge it!')
     
         # Check if commits are signed
         checks = []
@@ -83,13 +83,13 @@ def sync_website_content(username, token, source_repo, source_folder, source_ref
             checks.append(commit.commit.verification.verified and signed_by in commit.commit.verification.payload)
 
         if all(checks):
-            print('All commits are signed, auto-merging!')
+            print('\n\nAll commits are signed, auto-merging!')
             # https://cli.github.com/manual/gh_pr_merge
             os.environ["GITHUB_TOKEN"] = token
             # run(['gh', 'pr', 'megre', branch_name, '--auto'])
             os.environ["GITHUB_TOKEN"] = token
         else:
-            print('Not all commits are signed, abort merge!')
+            print('\n\nNot all commits are signed, abort merge!')
 
         break
 
