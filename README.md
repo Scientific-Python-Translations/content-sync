@@ -22,7 +22,7 @@ jobs:
           source-repo: "pandas-dev/pandas"
           source-folder: "pandas/web/pandas/"
           source-ref: "main"
-          translations-repo: "Scientific-Python-Translations/pandas"
+          translations-repo: "Scientific-Python-Translations/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
           translations-ref: "main"
           # These are provided by the Scientific Python Project and allow
@@ -32,7 +32,7 @@ jobs:
           token: ${{ secrets.TOKEN }}
 ```
 
-## Bot
+## Automations Bot (@scientificpythontranslations)
 
 [Bot account](https://github.com/ScientificPythonTranslations).
 
