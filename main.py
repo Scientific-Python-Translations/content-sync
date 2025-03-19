@@ -41,10 +41,10 @@ def run(cmds):
     """
     p = Popen(cmds, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
-    print("\n\n" + " ".join(cmds))
-    print("Out: ", out.decode())
-    print("Err: ", err.decode())
-    print("Code: ", p.returncode)
+    print("\n\n\nCmd: \n" + " ".join(cmds))
+    print("Out: \n", out.decode())
+    print("Err: \n", err.decode())
+    print("Code: \n", p.returncode)
     return out, err, p.returncode
 
 
