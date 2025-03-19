@@ -167,34 +167,37 @@ def sync_website_content(
     pr_branch = None
     signed_by = f"{name} <{email}>"
     for pr in pulls:
-        # print(pr.number, pr.title)
-        pr_branch = pr.head.ref
-        if pr.title == pr_title and pr_branch == branch_name:
-            print("\n\nFound PR try to merge it!")
+        try:
+            # print(pr.number, pr.title)
+            pr_branch = pr.head.ref
+            if pr.title == pr_title and pr_branch == branch_name:
+                print("\n\nFound PR try to merge it!")
 
-        # Check if commits are signed
-        checks = []
-        for commit in pr.get_commits():
-            print(
-                [
-                    commit.commit.verification.verified,
-                    signed_by,
-                    commit.commit.verification.payload,
-                ]
-            )
-            checks.append(
-                commit.commit.verification.verified
-                and signed_by in commit.commit.verification.payload
-            )
+            # Check if commits are signed
+            checks = []
+            for commit in pr.get_commits():
+                print(
+                    [
+                        commit.commit.verification.verified,
+                        signed_by,
+                        commit.commit.verification.payload,
+                    ]
+                )
+                checks.append(
+                    commit.commit.verification.verified
+                    and signed_by in commit.commit.verification.payload
+                )
 
-        if all(checks):
-            print("\n\nAll commits are signed, auto-merging!")
-            # https://cli.github.com/manual/gh_pr_merge
-            os.environ["GITHUB_TOKEN"] = token
-            run(["gh", "pr", "merge", branch_name, "--auto", "--squash"])
-            os.environ["GITHUB_TOKEN"] = token
-        else:
-            print("\n\nNot all commits are signed, abort merge!")
+            if all(checks):
+                print("\n\nAll commits are signed, auto-merging!")
+                # https://cli.github.com/manual/gh_pr_merge
+                os.environ["GITHUB_TOKEN"] = token
+                run(["gh", "pr", "merge", branch_name, "--auto", "--squash"])
+                os.environ["GITHUB_TOKEN"] = token
+            else:
+                print("\n\nNot all commits are signed, abort merge!")
+        except Exception as e:
+            print(e)
 
         break
 
