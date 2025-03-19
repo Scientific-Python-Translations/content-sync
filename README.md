@@ -7,7 +7,7 @@ A Github action to sync translatable content from various Scientific python proj
 ### Example 1: Pandas content sync
 
 ```yaml
-name: Sync Pandas Content
+name: Sync Content
 on:
   schedule:
     - cron: '0 12 * * MON'  # Every Monday at noon
@@ -24,6 +24,34 @@ jobs:
           source-ref: "main"
           translations-repo: "Scientific-Python-Translations/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
+          translations-ref: "main"
+          # These are provided by the Scientific Python Project and allow
+          # automation with bots
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          token: ${{ secrets.TOKEN }}
+```
+
+### Example 2: Scipy.org content sync
+
+```yaml
+name: Sync Content
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Daily at 5 am
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync Scipy Content
+        uses: Scientific-Python-Translations/content-sync@main
+        with:
+          source-repo: "scipy/scipy.org"
+          source-folder: "scipy.org/content/en/"
+          source-ref: "main"
+          translations-repo: "Scientific-Python-Translations/scipy.org-translations"
+          translations-folder: "scipy.org-translations/content/en/"
           translations-ref: "main"
           # These are provided by the Scientific Python Project and allow
           # automation with bots

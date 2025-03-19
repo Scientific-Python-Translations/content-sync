@@ -1,4 +1,5 @@
 import os
+import traceback
 from datetime import datetime
 from subprocess import Popen, PIPE
 
@@ -157,51 +158,47 @@ def sync_website_content(
             ]
         )
         os.environ["GITHUB_TOKEN"] = github_token
-    else:
-        print("\n\nNo changes to commit.")
 
-    auth = Auth.Token(github_token)
-    g = Github(auth=auth)
-    repo = g.get_repo(translations_repo)
-    pulls = repo.get_pulls(state="open", sort="created", direction="desc")
-    pr_branch = None
-    signed_by = f"{name} <{email}>"
-    for pr in pulls:
-        try:
-            # print(pr.number, pr.title)
+        auth = Auth.Token(token)
+        g = Github(auth=auth)
+        repo = g.get_repo(translations_repo)
+        pulls = repo.get_pulls(state="open", sort="created", direction="desc")
+        pr_branch = None
+        signed_by = f"{name} <{email}>"
+
+        for pr in pulls:
             pr_branch = pr.head.ref
             if pr.title == pr_title and pr_branch == branch_name:
                 print("\n\nFound PR try to merge it!")
 
-            # Check if commits are signed
-            checks = []
-            for commit in pr.get_commits():
-                print(
-                    [
-                        commit.commit.verification.verified,
-                        signed_by,
-                        commit.commit.verification.payload,
-                    ]
-                )
-                checks.append(
-                    commit.commit.verification.verified
-                    and signed_by in commit.commit.verification.payload
-                )
+                # Check if commits are signed
+                checks = []
+                for commit in pr.get_commits():
+                    print(
+                        [
+                            commit.commit.verification.verified,
+                            signed_by,
+                            commit.commit.verification.payload,
+                        ]
+                    )
+                    checks.append(
+                        commit.commit.verification.verified
+                        and signed_by in commit.commit.verification.payload
+                    )
 
-            if all(checks):
-                print("\n\nAll commits are signed, auto-merging!")
-                # https://cli.github.com/manual/gh_pr_merge
-                os.environ["GITHUB_TOKEN"] = token
-                run(["gh", "pr", "merge", branch_name, "--auto", "--squash"])
-                os.environ["GITHUB_TOKEN"] = token
-            else:
-                print("\n\nNot all commits are signed, abort merge!")
-        except Exception as e:
-            print(e)
+                if all(checks):
+                    print("\n\nAll commits are signed, auto-merging!")
+                    # https://cli.github.com/manual/gh_pr_merge
+                    os.environ["GITHUB_TOKEN"] = token
+                    run(["gh", "pr", "merge", branch_name, "--auto", "--squash"])
+                else:
+                    print("\n\nNot all commits are signed, abort merge!")
 
-        break
+                break
 
-    g.close()
+        g.close()
+    else:
+        print("\n\nNo changes to commit.")
 
 
 def parse_input() -> dict:
@@ -225,8 +222,13 @@ def parse_input() -> dict:
 
 
 def main():
-    gh_input = parse_input()
-    sync_website_content(**gh_input)
+    try:
+        gh_input = parse_input()
+        sync_website_content(**gh_input)
+    except Exception as e:
+        print("Error: ", e)
+        print(traceback.format_exc())
+        raise e
 
 
 if __name__ == "__main__":
