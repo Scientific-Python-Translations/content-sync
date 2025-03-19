@@ -191,7 +191,7 @@ def sync_website_content(
             print("\n\nAll commits are signed, auto-merging!")
             # https://cli.github.com/manual/gh_pr_merge
             os.environ["GITHUB_TOKEN"] = token
-            # run(['gh', 'pr', 'megre', branch_name, '--auto'])
+            run(["gh", "pr", "merge", branch_name, "--auto", "--squash"])
             os.environ["GITHUB_TOKEN"] = token
         else:
             print("\n\nNot all commits are signed, abort merge!")
