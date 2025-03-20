@@ -25,6 +25,6 @@ jobs:
           translations-repo: "scientificpythontranslations/pandas-translations"
           translations-folder: "pandas-translations/content/en/"
           translations-ref: "main"
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           token: "Not a real token"
