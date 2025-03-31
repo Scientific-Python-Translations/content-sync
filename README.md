@@ -122,4 +122,4 @@ jobs:
 
 ## License
 
-The scripts and documentation in this project are released under the [MIT License](https://github.com/Scientific-Python-Translations/translations-sync/blob/main/LICENSE.txt).
+The scripts and documentation in this project are released under the [MIT License](https://github.com/Scientific-Python-Translations/content-sync/blob/main/LICENSE.txt).

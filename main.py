@@ -1,3 +1,10 @@
+"""Sync content from source repository to translations repository.
+
+This script is intended to be run as a GitHub Action. It will sync content
+from a source repository to a translations repository, create a new branch,
+open a pull request for the changes and finally merge them.
+"""
+
 import os
 import traceback
 from datetime import datetime
@@ -6,25 +13,8 @@ from subprocess import Popen, PIPE
 from github import Github, Auth
 
 
-# Set the output value by writing to the outputs in the Environment File, mimicking the behavior defined here:
-#  https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
-def set_github_action_output(output_name, output_value):
-    """Set the output value by writing to the outputs in the Environment File.
-
-    Parameters
-    ----------
-    output_name : str
-        Name of the output.
-    output_value : str
-        Value of the output.
-    """
-    f = open(os.path.abspath(os.environ["GITHUB_OUTPUT"]), "a")
-    f.write(f"{output_name}={output_value}")
-    f.close()
-
-
-def run(cmds):
-    """Run a command in the shell and print output.
+def run(cmds: list[str]) -> tuple[str, str, int]:
+    """Run a command in the shell and print the standard output, error and return code.
 
     Parameters
     ----------
@@ -42,25 +32,27 @@ def run(cmds):
     """
     p = Popen(cmds, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
+    stdout = out.decode()
+    stderr = err.decode()
     print("\n\n\nCmd: \n" + " ".join(cmds))
-    print("Out: \n", out.decode())
-    print("Err: \n", err.decode())
+    print("Out: \n", stdout)
+    print("Err: \n", stderr)
     print("Code: \n", p.returncode)
-    return out, err, p.returncode
+    return stdout, stderr, p.returncode
 
 
 def sync_website_content(
-    username,
-    token,
-    source_repo,
-    source_folder,
-    source_ref,
-    translations_repo,
-    translations_folder,
-    translations_ref,
-    name,
-    email,
-):
+    username: str,
+    token: str,
+    source_repo: str,
+    source_folder: str,
+    source_ref: str,
+    translations_repo: str,
+    translations_folder: str,
+    translations_ref: str,
+    name: str,
+    email: str,
+) -> None:
     """Sync content from source repository to translations repository.
 
     Parameters
@@ -176,21 +168,31 @@ def sync_website_content(
                 for commit in pr.get_commits():
                     print(
                         [
-                            commit.commit.verification.verified,
+                            commit.commit.verification.verified,  # type: ignore
                             signed_by,
-                            commit.commit.verification.payload,
+                            commit.commit.verification.payload,  # type: ignore
                         ]
                     )
                     checks.append(
-                        commit.commit.verification.verified
-                        and signed_by in commit.commit.verification.payload
+                        commit.commit.verification.verified  # type: ignore
+                        and signed_by in commit.commit.verification.payload  # type: ignore
                     )
 
                 if all(checks):
                     print("\n\nAll commits are signed, auto-merging!")
                     # https://cli.github.com/manual/gh_pr_merge
                     os.environ["GITHUB_TOKEN"] = token
-                    run(["gh", "pr", "merge", branch_name, "--auto", "--squash"])
+                    run(
+                        [
+                            "gh",
+                            "pr",
+                            "merge",
+                            branch_name,
+                            "--auto",
+                            "--squash",
+                            "--delete-branch",
+                        ]
+                    )
                 else:
                     print("\n\nNot all commits are signed, abort merge!")
 
@@ -205,7 +207,7 @@ def parse_input() -> dict:
     gh_input = {
         # Automations Bot account
         "username": "scientificpythontranslations",
-        # Provided by organization secrets
+        # Github Personal Access Token provided by organization secrets
         "token": os.environ["TOKEN"],
         # Provided by user action input
         "source_repo": os.environ["INPUT_SOURCE-REPO"],
@@ -221,7 +223,7 @@ def parse_input() -> dict:
     return gh_input
 
 
-def main():
+def main() -> None:
     try:
         gh_input = parse_input()
         sync_website_content(**gh_input)
