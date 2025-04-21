@@ -68,11 +68,11 @@ def sync_website_content(
     source_ref : str
         Source branch name.
     translations_repo : str
-        .
+        Translations repository name.
     translations_folder : str
-        .
+        Translations folder name.
     translations_ref : str
-        .
+        Translations source branch.
     name : str
         Name of the bot account.
     email : str
