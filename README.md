@@ -43,10 +43,10 @@ jobs:
         uses: Scientific-Python-Translations/content-sync@main
         with:
           source-repo: "numpy/numpy.org"
-          source-folder: "content/en/"
+          source-folder: "numpy.org/content/en/"
           source-ref: "main"
           translations-repo: "Scientific-Python-Translations/numpy.org-translations"
-          translations-folder: "content/en/"
+          translations-folder: "numpy.org-translations/content/en/"
           translations-ref: "main"
           # These are provided by the Scientific Python Project and allow
           # automation with bots
@@ -57,14 +57,14 @@ jobs:
 
 ### Inputs
 
-| Input                 | Required | Default | Description                                                                |
-| --------------------- | -------- | ------- | -------------------------------------------------------------------------- |
-| `source-repo`         | ✅       | —       | GitHub repo with the source content (e.g., `numpy/numpy.org`).             |
-| `source-folder`       | ✅       | —       | Path to the content folder in the source repo (e.g., `content/en/`).       |
-| `source-ref`          | ❌       | `main`  | Branch or tag to sync from.                                                |
-| `translations-repo`   | ✅       | —       | Target repo for translated content (e.g., `org/site-translations`).        |
-| `translations-folder` | ✅       | -       | Path to the content folder in the translations repo (e.g., `content/en/`). |
-| `translations-ref`    | ❌       | `main`  | Branch of the target translations repo.                                    |
+| Input                 | Required | Default | Description                                                                                       |
+| --------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `source-repo`         | ✅       | —       | GitHub repo with the source content (e.g., `numpy/numpy.org`).                                    |
+| `source-folder`       | ✅       | —       | Path to the content folder in the source repo (e.g., `numpy.org/content/en/`).                    |
+| `source-ref`          | ❌       | `main`  | Branch or tag to sync from.                                                                       |
+| `translations-repo`   | ✅       | —       | Target repo for translated content (e.g., `org/site-translations`).                               |
+| `translations-folder` | ✅       | -       | Path to the content folder in the translations repo (e.g., `numpy.org-translations/content/en/`). |
+| `translations-ref`    | ❌       | `main`  | Branch of the target translations repo.                                                           |
 
 ## 🛠️ Setup Instructions
 

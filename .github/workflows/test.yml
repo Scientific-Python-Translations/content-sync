@@ -19,11 +19,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          source-repo: "scientificpythontranslations/pandas"
-          source-folder: "pandas/web/pandas/"
-          source-ref: "test-trans"
-          translations-repo: "scientificpythontranslations/pandas-translations"
-          translations-folder: "pandas-translations/content/en/"
+          source-repo: "Scientific-Python-Translations/numpy.org"
+          source-folder: "numpy-org/content/en/"
+          source-ref: "main"
+          translations-repo: "Scientific-Python-Translations/numpy.org-translations"
+          translations-folder: "numpy.org-translations/content/en/"
           translations-ref: "main"
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
