@@ -27,4 +27,4 @@ jobs:
           translations-ref: "main"
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          token: "Not a real token"
+          token: "not-a-real-token"
