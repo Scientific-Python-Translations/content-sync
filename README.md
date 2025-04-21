@@ -48,6 +48,11 @@ jobs:
           translations-repo: "Scientific-Python-Translations/numpy.org-translations"
           translations-folder: "content/en/"
           translations-ref: "main"
+          # These are provided by the Scientific Python Project and allow
+          # automation with bots
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          token: ${{ secrets.TOKEN }}
 ```
 
 ### Inputs
