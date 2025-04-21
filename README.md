@@ -63,7 +63,7 @@ jobs:
 | `source-folder`       | ✅       | —       | Path to the content folder in the source repo (e.g., `numpy.org/content/en/`).                    |
 | `source-ref`          | ❌       | `main`  | Branch or tag to sync from.                                                                       |
 | `translations-repo`   | ✅       | —       | Target repo for translated content (e.g., `org/site-translations`).                               |
-| `translations-folder` | ✅       | -       | Path to the content folder in the translations repo (e.g., `numpy.org-translations/content/en/`). |
+| `translations-folder` | ✅       | —       | Path to the content folder in the translations repo (e.g., `numpy.org-translations/content/en/`). |
 | `translations-ref`    | ❌       | `main`  | Branch of the target translations repo.                                                           |
 
 ## 🛠️ Setup Instructions

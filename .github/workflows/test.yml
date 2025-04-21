@@ -20,7 +20,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           source-repo: "Scientific-Python-Translations/numpy.org"
-          source-folder: "numpy-org/content/en/"
+          source-folder: "numpy.org/content/en/"
           source-ref: "main"
           translations-repo: "Scientific-Python-Translations/numpy.org-translations"
           translations-folder: "numpy.org-translations/content/en/"
