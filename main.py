@@ -90,9 +90,9 @@ def sync_website_content(
     """
     base_path = Path(os.getcwd())
     base_source_path = base_path / source_repo.split("/")[-1]
-    source_path = base_path / source_folder
+    source_path = base_source_path / source_folder
     base_translations_path = base_path / translations_repo.split("/")[-1]
-    translations_path = base_path / translations_folder
+    translations_path = base_translations_path / translations_folder
 
     print(
         "\n\n### Syncing content from source repository to translations repository.\n\n"
@@ -212,6 +212,8 @@ def sync_website_content(
                         commit.commit.verification.verified  # type: ignore
                         and signed_by in commit.commit.verification.payload  # type: ignore
                     )
+                # TODO: REMOVE
+                break
 
                 if all(checks):
                     print("\n\nAll commits are signed, auto-merging!")
