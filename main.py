@@ -10,19 +10,25 @@ import traceback
 from datetime import datetime
 from subprocess import Popen, PIPE
 from pathlib import Path
+from typing import Optional, Union
 
 from github import Github, Auth
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
-def run(cmds: list[str]) -> tuple[str, str, int]:
+def run(
+    cmds: list[str], cwd: Optional[Union[str, Path]] = None
+) -> tuple[str, str, int]:
     """Run a command in the shell and print the standard output, error and return code.
 
     Parameters
     ----------
     cmds : list
         List of commands to run.
+    cwd : str, optional
+        Current working directory to run the command in. If None, use the current working directory.
 
     Returns
     -------
@@ -33,11 +39,12 @@ def run(cmds: list[str]) -> tuple[str, str, int]:
     rc : int
         Return code of the command.
     """
-    p = Popen(cmds, stdout=PIPE, stderr=PIPE)
+    p = Popen(cmds, stdout=PIPE, stderr=PIPE, cwd=cwd)
     out, err = p.communicate()
     stdout = out.decode()
     stderr = err.decode()
     print("\n\n\nCmd: \n" + " ".join(cmds))
+    print("Cwd: \n", cwd or os.getcwd())
     print("Out: \n", stdout)
     print("Err: \n", stderr)
     print("Code: \n", p.returncode)
@@ -84,10 +91,13 @@ def sync_website_content(
     base_folder = Path(os.getcwd())
     source_folder_path = base_folder / source_folder
     translations_folder_path = base_folder / translations_folder
-    print("\n\n### Syncing content from source repository to translations repository.\n\n")
+    print(
+        "\n\n### Syncing content from source repository to translations repository.\n\n"
+    )
     print("Base folder: ", base_folder)
     print("Source folder: ", source_folder_path)
     print("Translation folder: ", translations_folder_path)
+
     run(["git", "config", "--global", "user.name", f'"{name}"'])
     run(["git", "config", "--global", "user.email", f'"{email}"'])
 
@@ -128,24 +138,27 @@ def sync_website_content(
 
     date_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     branch_name = f"content-sync-{date_time}"
-    os.chdir(translations_repo.split("/")[1])
-    print("\n\ngetcwd:", os.getcwd())
-    run(["git", "checkout", "-b", branch_name])
 
-    # os.chdir(translations_folder)
     # FIXME: If on the same level do this, otherwise no parent?
-    run(["rsync", "-avr", "--delete", str(source_folder_path), str(translations_folder_path.parent)])
-    run(["git", "status"])
+    if source_folder_path.name == translations_folder_path.name:
+        dest = str(translations_folder_path.parent)
+    else:
+        dest = str(translations_folder_path)
 
-    run(["git", "add", "."])
+    run(["rsync", "-avr", "--delete", str(source_folder_path), dest])
+    run(["git", "status"], cwd=translations_folder_path)
+    run(["git", "add", "."], cwd=translations_folder_path)
     _out, _err, rc = run(["git", "diff", "--staged", "--quiet"])
 
     pr_title = "Update content"
     github_token = os.environ.get("GITHUB_TOKEN", "")
     if rc:
-        run(["git", "commit", "-S", "-m", "Update content."])
-        run(["git", "remote", "-v"])
-        run(["git", "push", "-u", "origin", branch_name])
+        run(
+            ["git", "commit", "-S", "-m", "Update content."],
+            cwd=translations_folder_path,
+        )
+        run(["git", "remote", "-v"], cwd=translations_folder_path)
+        run(["git", "push", "-u", "origin", branch_name], cwd=translations_folder_path)
 
         os.environ["GITHUB_TOKEN"] = token
         run(
@@ -161,7 +174,8 @@ def sync_website_content(
                 pr_title,
                 "--body",
                 "Automated content update.",
-            ]
+            ],
+            cwd=translations_folder_path,
         )
         os.environ["GITHUB_TOKEN"] = github_token
 
@@ -192,23 +206,24 @@ def sync_website_content(
                         and signed_by in commit.commit.verification.payload  # type: ignore
                     )
 
-                # if all(checks):
-                #     print("\n\nAll commits are signed, auto-merging!")
-                #     # https://cli.github.com/manual/gh_pr_merge
-                #     os.environ["GITHUB_TOKEN"] = token
-                #     run(
-                #         [
-                #             "gh",
-                #             "pr",
-                #             "merge",
-                #             branch_name,
-                #             "--auto",
-                #             "--squash",
-                #             "--delete-branch",
-                #         ]
-                #     )
-                # else:
-                #     print("\n\nNot all commits are signed, abort merge!")
+                if all(checks):
+                    print("\n\nAll commits are signed, auto-merging!")
+                    # https://cli.github.com/manual/gh_pr_merge
+                    os.environ["GITHUB_TOKEN"] = token
+                    run(
+                        [
+                            "gh",
+                            "pr",
+                            "merge",
+                            branch_name,
+                            "--auto",
+                            "--squash",
+                            "--delete-branch",
+                        ],
+                        cwd=translations_folder_path,
+                    )
+                else:
+                    print("\n\nNot all commits are signed, abort merge!")
 
                 break
 
