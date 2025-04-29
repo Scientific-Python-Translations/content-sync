@@ -149,6 +149,7 @@ def sync_website_content(
     else:
         dest = str(translations_path)
 
+    run(["git", "checkout", "-b", branch_name], cwd=base_translations_path)
     run(["rsync", "-avr", "--delete", str(source_path), dest])
     run(["git", "status"], cwd=base_translations_path)
     run(["git", "add", "."], cwd=base_translations_path)
