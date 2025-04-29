@@ -90,7 +90,11 @@ def sync_website_content(
     """
     base_path = Path(os.getcwd())
     base_source_path = base_path / source_repo.split("/")[-1]
-    source_path = base_source_path / source_folder
+    if source_folder in ["/", ""]:
+        source_path = base_source_path
+    else:
+        source_path = base_source_path / source_folder
+
     base_translations_path = base_path / translations_repo.split("/")[-1]
     translations_path = base_translations_path / translations_folder
 
@@ -149,8 +153,13 @@ def sync_website_content(
     else:
         dest = str(translations_path)
 
+    if source_folder in ["/", ""]:
+        src = str(source_path) + "/"
+    else:
+        src = str(source_path)
+
     run(["git", "checkout", "-b", branch_name], cwd=base_translations_path)
-    run(["rsync", "-avr", "--delete", str(source_path), dest])
+    run(["rsync", "-avr", "--delete", src, dest])
     run(["git", "status"], cwd=base_translations_path)
     run(["git", "add", "."], cwd=base_translations_path)
     _out, _err, rc = run(
