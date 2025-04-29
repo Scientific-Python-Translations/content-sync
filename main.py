@@ -62,6 +62,7 @@ def sync_website_content(
     translations_ref: str,
     name: str,
     email: str,
+    run_local: bool = False,
 ) -> None:
     """Sync content from source repository to translations repository.
 
@@ -159,6 +160,7 @@ def sync_website_content(
         src = str(source_path)
 
     run(["git", "checkout", "-b", branch_name], cwd=base_translations_path)
+    os.makedirs(dest, exist_ok=True)
     run(["rsync", "-avr", "--delete", src, dest])
     run(["git", "status"], cwd=base_translations_path)
     run(["git", "add", "."], cwd=base_translations_path)
@@ -169,10 +171,17 @@ def sync_website_content(
     pr_title = "Update content"
     github_token = os.environ.get("GITHUB_TOKEN", "")
     if rc:
-        run(
-            ["git", "commit", "-S", "-m", "Update content."],
-            cwd=base_translations_path,
-        )
+        if run_local:
+            run(
+                ["git", "commit", "-m", "Update content."],
+                cwd=base_translations_path,
+            )
+        else:
+            run(
+                ["git", "commit", "-S", "-m", "Update content."],
+                cwd=base_translations_path,
+            )
+
         run(["git", "remote", "-v"], cwd=base_translations_path)
         run(["git", "push", "-u", "origin", branch_name], cwd=base_translations_path)
 
@@ -195,57 +204,58 @@ def sync_website_content(
         )
         os.environ["GITHUB_TOKEN"] = github_token
 
-        auth = Auth.Token(token)
-        g = Github(auth=auth)
-        repo = g.get_repo(translations_repo)
-        pulls = repo.get_pulls(state="open", sort="created", direction="desc")
-        pr_branch = None
-        signed_by = f"{name} <{email}>"
+        if not run_local:
+            auth = Auth.Token(token)
+            g = Github(auth=auth)
+            repo = g.get_repo(translations_repo)
+            pulls = repo.get_pulls(state="open", sort="created", direction="desc")
+            pr_branch = None
+            signed_by = f"{name} <{email}>"
 
-        for pr in pulls:
-            pr_branch = pr.head.ref
-            if pr.title == pr_title and pr_branch == branch_name:
-                print("\n\nFound PR try to merge it!")
+            for pr in pulls:
+                pr_branch = pr.head.ref
+                if pr.title == pr_title and pr_branch == branch_name:
+                    print("\n\nFound PR try to merge it!")
 
-                # Check if commits are signed
-                checks = []
-                for commit in pr.get_commits():
-                    print(
-                        [
-                            commit.commit.verification.verified,  # type: ignore
-                            signed_by,
-                            commit.commit.verification.payload,  # type: ignore
-                        ]
-                    )
-                    checks.append(
-                        commit.commit.verification.verified  # type: ignore
-                        and signed_by in commit.commit.verification.payload  # type: ignore
-                    )
-                # TODO: REMOVE
-                break
+                    # Check if commits are signed
+                    checks = []
+                    for commit in pr.get_commits():
+                        print(
+                            [
+                                commit.commit.verification.verified,  # type: ignore
+                                signed_by,
+                                commit.commit.verification.payload,  # type: ignore
+                            ]
+                        )
+                        checks.append(
+                            commit.commit.verification.verified  # type: ignore
+                            and signed_by in commit.commit.verification.payload  # type: ignore
+                        )
+                    # TODO: REMOVE
+                    break
 
-                if all(checks):
-                    print("\n\nAll commits are signed, auto-merging!")
-                    # https://cli.github.com/manual/gh_pr_merge
-                    os.environ["GITHUB_TOKEN"] = token
-                    run(
-                        [
-                            "gh",
-                            "pr",
-                            "merge",
-                            branch_name,
-                            "--auto",
-                            "--squash",
-                            "--delete-branch",
-                        ],
-                        cwd=base_translations_path,
-                    )
-                else:
-                    print("\n\nNot all commits are signed, abort merge!")
+                    if all(checks):
+                        print("\n\nAll commits are signed, auto-merging!")
+                        # https://cli.github.com/manual/gh_pr_merge
+                        os.environ["GITHUB_TOKEN"] = token
+                        run(
+                            [
+                                "gh",
+                                "pr",
+                                "merge",
+                                branch_name,
+                                "--auto",
+                                "--squash",
+                                "--delete-branch",
+                            ],
+                            cwd=base_translations_path,
+                        )
+                    else:
+                        print("\n\nNot all commits are signed, abort merge!")
 
-                break
+                    break
 
-        g.close()
+            g.close()
     else:
         print("\n\nNo changes to commit.")
 
@@ -266,6 +276,7 @@ def parse_input() -> dict:
         # Provided by gpg action based on organization secrets
         "name": os.environ["GPG_NAME"],
         "email": os.environ["GPG_EMAIL"],
+        "run_local": os.environ["RUN_LOCAL"].lower() == "true",
     }
     return gh_input
 
