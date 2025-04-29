@@ -88,15 +88,20 @@ def sync_website_content(
     email : str
         Email of the bot account.
     """
-    base_folder = Path(os.getcwd())
-    source_folder_path = base_folder / source_folder
-    translations_folder_path = base_folder / translations_folder
+    base_path = Path(os.getcwd())
+    base_source_path = base_path / source_repo.split("/")[-1]
+    source_path = base_path / source_folder
+    base_translations_path = base_path / translations_repo.split("/")[-1]
+    translations_path = base_path / translations_folder
+
     print(
         "\n\n### Syncing content from source repository to translations repository.\n\n"
     )
-    print("Base folder: ", base_folder)
-    print("Source folder: ", source_folder_path)
-    print("Translation folder: ", translations_folder_path)
+    print("\nBase path: ", base_path)
+    print("\nBase source path: ", base_source_path)
+    print("\nSource path: ", source_path)
+    print("\nBase translations path: ", base_translations_path)
+    print("\nTranslations path: ", translations_path)
 
     run(["git", "config", "--global", "user.name", f'"{name}"'])
     run(["git", "config", "--global", "user.email", f'"{email}"'])
@@ -139,26 +144,27 @@ def sync_website_content(
     date_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     branch_name = f"content-sync-{date_time}"
 
-    # FIXME: If on the same level do this, otherwise no parent?
-    if source_folder_path.name == translations_folder_path.name:
-        dest = str(translations_folder_path.parent)
+    if source_path.name == translations_path.name:
+        dest = str(translations_path.parent)
     else:
-        dest = str(translations_folder_path)
+        dest = str(translations_path)
 
-    run(["rsync", "-avr", "--delete", str(source_folder_path), dest])
-    run(["git", "status"], cwd=translations_folder_path)
-    run(["git", "add", "."], cwd=translations_folder_path)
-    _out, _err, rc = run(["git", "diff", "--staged", "--quiet"])
+    run(["rsync", "-avr", "--delete", str(source_path), dest])
+    run(["git", "status"], cwd=base_translations_path)
+    run(["git", "add", "."], cwd=base_translations_path)
+    _out, _err, rc = run(
+        ["git", "diff", "--staged", "--quiet"], cwd=base_translations_path
+    )
 
     pr_title = "Update content"
     github_token = os.environ.get("GITHUB_TOKEN", "")
     if rc:
         run(
             ["git", "commit", "-S", "-m", "Update content."],
-            cwd=translations_folder_path,
+            cwd=base_translations_path,
         )
-        run(["git", "remote", "-v"], cwd=translations_folder_path)
-        run(["git", "push", "-u", "origin", branch_name], cwd=translations_folder_path)
+        run(["git", "remote", "-v"], cwd=base_translations_path)
+        run(["git", "push", "-u", "origin", branch_name], cwd=base_translations_path)
 
         os.environ["GITHUB_TOKEN"] = token
         run(
@@ -175,7 +181,7 @@ def sync_website_content(
                 "--body",
                 "Automated content update.",
             ],
-            cwd=translations_folder_path,
+            cwd=base_translations_path,
         )
         os.environ["GITHUB_TOKEN"] = github_token
 
@@ -220,7 +226,7 @@ def sync_website_content(
                             "--squash",
                             "--delete-branch",
                         ],
-                        cwd=translations_folder_path,
+                        cwd=base_translations_path,
                     )
                 else:
                     print("\n\nNot all commits are signed, abort merge!")
