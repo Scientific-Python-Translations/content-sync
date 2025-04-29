@@ -9,8 +9,11 @@ import os
 import traceback
 from datetime import datetime
 from subprocess import Popen, PIPE
+from pathlib import Path
 
 from github import Github, Auth
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def run(cmds: list[str]) -> tuple[str, str, int]:
@@ -78,6 +81,13 @@ def sync_website_content(
     email : str
         Email of the bot account.
     """
+    base_folder = Path(os.getcwd())
+    source_folder_path = base_folder / source_folder
+    translations_folder_path = base_folder / translations_folder
+    print("\n\n### Syncing content from source repository to translations repository.\n\n")
+    print("Base folder: ", base_folder)
+    print("Source folder: ", source_folder_path)
+    print("Translation folder: ", translations_folder_path)
     run(["git", "config", "--global", "user.name", f'"{name}"'])
     run(["git", "config", "--global", "user.email", f'"{email}"'])
 
@@ -115,14 +125,18 @@ def sync_website_content(
         ]
 
     run(cmds)
-    run(["rsync", "-av", "--delete", source_folder, translations_folder])
 
     date_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     branch_name = f"content-sync-{date_time}"
     os.chdir(translations_repo.split("/")[1])
     print("\n\ngetcwd:", os.getcwd())
-
     run(["git", "checkout", "-b", branch_name])
+
+    # os.chdir(translations_folder)
+    # FIXME: If on the same level do this, otherwise no parent?
+    run(["rsync", "-avr", "--delete", str(source_folder_path), str(translations_folder_path.parent)])
+    run(["git", "status"])
+
     run(["git", "add", "."])
     _out, _err, rc = run(["git", "diff", "--staged", "--quiet"])
 
@@ -178,23 +192,23 @@ def sync_website_content(
                         and signed_by in commit.commit.verification.payload  # type: ignore
                     )
 
-                if all(checks):
-                    print("\n\nAll commits are signed, auto-merging!")
-                    # https://cli.github.com/manual/gh_pr_merge
-                    os.environ["GITHUB_TOKEN"] = token
-                    run(
-                        [
-                            "gh",
-                            "pr",
-                            "merge",
-                            branch_name,
-                            "--auto",
-                            "--squash",
-                            "--delete-branch",
-                        ]
-                    )
-                else:
-                    print("\n\nNot all commits are signed, abort merge!")
+                # if all(checks):
+                #     print("\n\nAll commits are signed, auto-merging!")
+                #     # https://cli.github.com/manual/gh_pr_merge
+                #     os.environ["GITHUB_TOKEN"] = token
+                #     run(
+                #         [
+                #             "gh",
+                #             "pr",
+                #             "merge",
+                #             branch_name,
+                #             "--auto",
+                #             "--squash",
+                #             "--delete-branch",
+                #         ]
+                #     )
+                # else:
+                #     print("\n\nNot all commits are signed, abort merge!")
 
                 break
 
