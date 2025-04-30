@@ -153,6 +153,7 @@ def sync_website_content(
     email : str
         Email of the bot account.
     """
+    end = "/" if translations_source_path.endswith("/") else ""
     base_path = Path(os.getcwd())
     base_source_path = base_path / source_repo.split("/")[-1]
     if source_path in ["/", ""]:
@@ -215,21 +216,17 @@ def sync_website_content(
     date_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     branch_name = f"content-sync-{date_time}"
 
+    src = str(src_path) + end
+
     if src_path.name == trans_path.name:
         dest = str(trans_path.parent)
     else:
         dest = str(trans_path)
 
-    if source_path in ["/", ""]:
-        src = str(src_path) + "/"
-    else:
-        src = str(src_path)
-
     run(["git", "checkout", "-b", branch_name], cwd=base_translations_path)
     os.makedirs(dest, exist_ok=True)
     run(["rsync", "-avr", "--delete", src, dest])
 
-    return
     run(["git", "status"], cwd=base_translations_path)
     run(["git", "add", "."], cwd=base_translations_path)
     _out, _err, rc = run(

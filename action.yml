@@ -5,7 +5,7 @@ inputs:
   source-repo:
     description: "Source repository"
     required: true
-  source-folder:
+  source-path:
     description: "Source folder"
     required: true
   source-ref:
@@ -14,12 +14,18 @@ inputs:
   translations-repo:
     description: "Translations repository"
     required: true
-  translations-folder:
+  translations-path:
     description: "Translations folder"
+    required: true
+  translations-source-path:
+    description: "Translations source folder"
     required: true
   translations-ref:
     description: "Translations reference"
     default: "main"
+  auto-merge:
+    description: "Automatically merge the PR"
+    default: "false"
   gpg-private-key:
     description: "GPG private key of the user/email making the commits. Provided by the organization."
     required: true
@@ -58,11 +64,13 @@ runs:
       env:
         TOKEN: ${{ inputs.TOKEN }}
         INPUT_SOURCE-REPO: ${{ inputs.SOURCE-REPO }}
-        INPUT_SOURCE-FOLDER: ${{ inputs.SOURCE-FOLDER }}
+        INPUT_SOURCE-PATH: ${{ inputs.SOURCE-PATH }}
         INPUT_SOURCE-REF: ${{ inputs.SOURCE-REF }}
         INPUT_TRANSLATIONS-REPO: ${{ inputs.TRANSLATIONS-REPO }}
-        INPUT_TRANSLATIONS-FOLDER: ${{ inputs.TRANSLATIONS-FOLDER }}
+        INPUT_TRANSLATIONS-PATH: ${{ inputs.TRANSLATIONS-PATH }}
+        INPUT_TRANSLATIONS-SOURCE-PATH: ${{ inputs.TRANSLATIONS-SOURCE-PATH }}
         INPUT_TRANSLATIONS-REF: ${{ inputs.TRANSLATIONS-REF }}
+        INPUT_AUTO-MERGE: ${{ inputs.AUTO-MERGE }}
         GPG_NAME: ${{ steps.import-gpg.outputs.name }}
         GPG_EMAIL: ${{ steps.import-gpg.outputs.email }}
       run: |
