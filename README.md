@@ -43,11 +43,13 @@ jobs:
         uses: Scientific-Python-Translations/content-sync@main
         with:
           source-repo: "numpy/numpy.org"
-          source-folder: "numpy.org/content/en/"
+          source-path: "content/en/"
           source-ref: "main"
           translations-repo: "Scientific-Python-Translations/numpy.org-translations"
-          translations-folder: "numpy.org-translations/content/en/"
+          translations-path: "content/"
+          translations-source-path: "content/en/"
           translations-ref: "main"
+          auto-merge: "false"
           # These are provided by the Scientific Python Project and allow
           # automation with bots
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -57,20 +59,22 @@ jobs:
 
 ### Inputs
 
-| Input                 | Required | Default | Description                                                                                       |
-| --------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------- |
-| `source-repo`         | ✅       | —       | GitHub repo with the source content (e.g., `numpy/numpy.org`).                                    |
-| `source-folder`       | ✅       | —       | Path to the content folder in the source repo (e.g., `numpy.org/content/en/`).                    |
-| `source-ref`          | ❌       | `main`  | Branch or tag to sync from.                                                                       |
-| `translations-repo`   | ✅       | —       | Target repo for translated content (e.g., `org/site-translations`).                               |
-| `translations-folder` | ✅       | —       | Path to the content folder in the translations repo (e.g., `numpy.org-translations/content/en/`). |
-| `translations-ref`    | ❌       | `main`  | Branch of the target translations repo.                                                           |
+| Input                      | Required | Default | Description                                                                                                             |
+| -------------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `source-repo`              | ✅       | —       | GitHub repo with the source content (e.g., `numpy/numpy.org`).                                                          |
+| `source-path`              | ✅       | —       | Path to the content folder with respect to the source repo root (e.g., `content/en/`)                                   |
+| `source-ref`               | ❌       | `main`  | Branch or tag to sync from.                                                                                             |
+| `translations-repo`        | ✅       | —       | Target repo for translated content (e.g., `Scientific-Python-Translations/numpy.org-translations`).                     |
+| `translations-path`        | ✅       | —       | Path to the folder where the translations will be synced with respect to translation repo root (e.g., `content/`).      |
+| `translations-source-path` | ✅       | —       | Path to the folder where the source strings will be synced with respect to translation repo root (e.g., `content/en/`). |
+| `translations-ref`         | ❌       | `main`  | Branch of the target translations repo.                                                                                 |
+| `auto-merge`               | ❌       | `false` | Whether to auto-merge the created pull request.                                                                         |
 
 ## 🛠️ Setup Instructions
 
 1. **Create a Translations Repository**: Set up a separate repository to hold the translated content. You can use the [translations-cookiecutter](https://github.com/Scientific-Python-Translations/translations-cookiecutter) as template for the repository.
 
-2. **Configure Crowdin**: Integrate your translations repository with Crowdin to manage translations. Ensure that the `translations-folder` is set up correctly for Crowdin.
+2. **Configure Crowdin**: Integrate your translations repository with Crowdin to manage translations. Ensure that the translations paths are set up correctly for Crowdin.
 
 3. **Set Up the Workflow**: Add the above GitHub Actions workflow to your source repository (e.g., `.github/workflows/sync-content.yml`). This is created automatically if you used the `translations-cookiecutter`.
 
@@ -78,13 +82,13 @@ jobs:
 
 1. **Checkout Source Repository**: The action checks out the specified `source-repo` and `source-ref`.
 
-2. **Copy Content**: It copies the contents of `source-folder` from the source repository.
+2. **Copy Content**: It copies the contents of `source-path` from the source repository.
 
 3. **Checkout Translations Repository**: The action checks out the specified `translations-repo` and `translations-ref`.
 
-4. **Place Synced Content**: It places the copied content into the specified `translations-folder` within the translations repository.
+4. **Place Synced Content**: It places the copied content into the specified `translations-source-path` within the translations repository.
 
-5. **Commit and PR Creation**: The action commits the changes with the specified and creates a Pull Request with signed commits and performs and automatic merge.
+5. **Commit and PR Creation**: The action commits the changes with the specified and creates a Pull Request with signed commits and performs and automatic merge if the option is enabled.
 
 ## 🤖 Bot Activity
 
