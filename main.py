@@ -153,7 +153,8 @@ def sync_website_content(
     email : str
         Email of the bot account.
     """
-    end = "/" if translations_source_path.endswith("/") else ""
+    src_end = "/" if source_path.endswith("/") else ""
+    trans_end = "/" if translations_source_path.endswith("/") else ""
     base_path = Path(os.getcwd())
     base_source_path = base_path / source_repo.split("/")[-1]
     if source_path in ["/", ""]:
@@ -207,21 +208,15 @@ def sync_website_content(
 
     run(cmds)
 
-    run(["git", "config", "user.name", f'"{name}"'], cwd=base_translations_path)
-    run(["git", "config", "user.email", f'"{email}"'], cwd=base_translations_path)
-
-    run(["git", "config", "user.name", f'"{name}"'], cwd=base_source_path)
-    run(["git", "config", "user.email", f'"{email}"'], cwd=base_source_path)
+    for path in [base_source_path, base_translations_path]:
+        run(["git", "config", "user.name", f'"{name}"'], cwd=path)
+        run(["git", "config", "user.email", f'"{email}"'], cwd=path)
 
     date_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     branch_name = f"content-sync-{date_time}"
 
-    src = str(src_path) + end
-
-    if src_path.name == trans_path.name:
-        dest = str(trans_path.parent)
-    else:
-        dest = str(trans_path)
+    src = str(src_path) + src_end
+    dest = str(trans_path) + trans_end
 
     run(["git", "checkout", "-b", branch_name], cwd=base_translations_path)
     os.makedirs(dest, exist_ok=True)

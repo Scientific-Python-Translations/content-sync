@@ -78,6 +78,8 @@ jobs:
 
 3. **Set Up the Workflow**: Add the above GitHub Actions workflow to your source repository (e.g., `.github/workflows/sync-content.yml`). This is created automatically if you used the `translations-cookiecutter`.
 
+**Important:** Any content that can be translated needs to live inside `translations-source-path`.
+
 ## 🔄 How It Works
 
 1. **Checkout Source Repository**: The action checks out the specified `source-repo` and `source-ref`.
