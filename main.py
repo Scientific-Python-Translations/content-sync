@@ -215,6 +215,8 @@ def sync_website_content(
     date_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     branch_name = f"content-sync-{date_time}"
 
+    # rsync /var/www/ /home/var - copies the contents of /var/www/ but not the www folder itself.
+    # rsync /var/www /home/var - copies the folder www along with all its contents.
     src = str(src_path) + src_end
     dest = str(trans_path) + trans_end
 
